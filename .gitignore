@@ -1,0 +1,21 @@
+# Virtual environment
+venv/
+sustainable/
+
+# Compiled byte code
+__pycache__/
+*.py[cod]
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Media files
+media/
+
+# Static files
+static/
+
+# If you are using a database other than SQLite, add the database file as well
