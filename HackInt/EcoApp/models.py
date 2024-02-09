@@ -83,7 +83,6 @@ class User(AbstractUser):
         related_query_name="%(app_label)s_%(class)ss",
     )
 
-
 # Certification information
 class Certification(models.Model):
     name = models.CharField(max_length=100)
@@ -92,10 +91,13 @@ class Certification(models.Model):
     benefits = models.TextField()
 
 # Company profile
+
 class Company(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='company')
     sustainability_score = models.IntegerField(default=0)
     improvements_needed = models.TextField()
+    logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
+
 
 # Supplier network
 class Supplier(models.Model):

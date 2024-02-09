@@ -29,7 +29,7 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
+'''Ensure your application that contains the custom User model is listed in INSTALLED_APPS before django.contrib.admin to prevent any registration issues.'''
 INSTALLED_APPS = [
     'rest_framework',
     'EcoApp.apps.EcoappConfig',
@@ -123,3 +123,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+import os
+
+# Media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+AUTH_USER_MODEL = 'EcoApp.User'

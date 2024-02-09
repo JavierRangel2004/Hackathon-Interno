@@ -21,3 +21,23 @@ class ForumPostViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+from rest_framework import status, views
+from rest_framework.response import Response
+from .serializers import CompanyRegistrationSerializer, AdvisorRegistrationSerializer
+
+class CompanyRegistrationView(views.APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = CompanyRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AdvisorRegistrationView(views.APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = AdvisorRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -26,3 +26,41 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'is_advisor', 'is_company']
+
+from django.contrib.auth import get_user_model
+
+UserModel = get_user_model()
+
+class CompanyRegistrationSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = UserModel
+        fields = ('email', 'username', 'password', 'user')
+
+    def create(self, validated_data):
+        user = UserModel.objects.create_user(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            password=validated_data['password'],
+            is_company=True
+        )
+        company = Company.objects.create(user=user)
+        return company
+
+class AdvisorRegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = UserModel
+        fields = ('email', 'username', 'password', 'is_advisor')
+
+    def create(self, validated_data):
+        user = UserModel.objects.create_user(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            password=validated_data['password'],
+            is_advisor=True
+        )
+        return user
