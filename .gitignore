@@ -1,6 +1,5 @@
 # Virtual environment
-venv/
-sustainable/
+venvHI/
 
 # Compiled byte code
 __pycache__/
