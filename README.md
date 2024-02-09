@@ -36,8 +36,8 @@ To set up the project's development environment, follow these steps:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://your-repository-url.git
-cd your-repository-directory
+git clone git@github.com:JavierRangel2004/Hackathon-Interno.git
+cd Hackathon-Interno
 ```
 
 ### 2. Create a Virtual Environment
