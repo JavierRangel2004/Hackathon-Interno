@@ -28,6 +28,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'be53-2806-106e-24-23ba-7d4e-264b-882b-b71c.ngrok-free.app',
     '127.0.0.1',
+    'localhost',
+    'a05e-189-147-66-240.ngrok-free.app',
 ]
 
 
