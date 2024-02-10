@@ -1,13 +1,75 @@
-from rest_framework import serializers
+# serializers.py
 from django.contrib.auth import get_user_model
-from .models import Certification, Company, Advisor, ForumPost, User
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import serializers
+from .models import Company, Advisor, Sector, Specialty, Certification, ForumPost
 
 UserModel = get_user_model()
+
+class SectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sector
+        fields = ['id', 'name']
+
+class SpecialtySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Specialty
+        fields = ['id', 'name']
+
+
+class AdvisorRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserModel
+        fields = ['username', 'email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        validated_data['is_advisor'] = True
+        user = UserModel.objects.create_user(**validated_data)
+        return user
+
+class CompanyRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserModel
+        fields = ['username', 'email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        validated_data['is_company'] = True
+        user = UserModel.objects.create_user(**validated_data)
+        return user
+
+class CompanyProfileUpdateSerializer(serializers.ModelSerializer):
+    sectors = serializers.PrimaryKeyRelatedField(many=True, queryset=Sector.objects.all(), required=False)
+
+    class Meta:
+        model = Company
+        fields = ['name', 'email', 'phone', 'address', 'number_of_employees', 'sectors', 'logo']
+        extra_kwargs = {field: {'required': False} for field in fields}
+
+    def update(self, instance, validated_data):
+        instance.sectors.set(validated_data.get('sectors', instance.sectors.all()))
+        return super().update(instance, validated_data)
+
+class AdvisorProfileUpdateSerializer(serializers.ModelSerializer):
+    specialties = serializers.PrimaryKeyRelatedField(many=True, queryset=Specialty.objects.all(), required=False)
+
+    class Meta:
+        model = Advisor
+        fields = ['name', 'email', 'phone', 'specialties', 'profile_picture']
+        extra_kwargs = {field: {'required': False} for field in fields}
+
+    def update(self, instance, validated_data):
+        instance.specialties.set(validated_data.get('specialties', instance.specialties.all()))
+        return super().update(instance, validated_data)
 
 class CertificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certification
+        fields = '__all__'
+
+class ForumPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ForumPost
         fields = '__all__'
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -20,96 +82,28 @@ class AdvisorSerializer(serializers.ModelSerializer):
         model = Advisor
         fields = '__all__'
 
-class ForumPostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ForumPost
-        fields = '__all__'
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'is_advisor', 'is_company']
-
-class UserRegistrationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserModel
-        fields = ('username', 'email', 'password')
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        user = UserModel.objects.create_user(**validated_data)
-        return user
-'''class Company(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='company')
-    name = models.CharField(max_length=255)
-    email = models.EmailField()
-    phone = models.CharField(max_length=20)
-    sustainability_score = models.IntegerField(default=0)
-    improvements_needed = models.TextField()
-    logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
-    ranking = models.IntegerField(default=0)
-    certifications = models.ManyToManyField(Certification, blank=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
-    number_of_employees = models.IntegerField(default=0)
-    sector = models.CharField(max_length=255, blank=True, null=True)'''
-
-'''test post:
-{
-  "user": {
-    "username": "companyUsername",
-    "email": "company@example.com",
-    "password": "securepassword123"
-  },
-  "name": "Company Name",
-  "phone": "123-456-7890",
-  "address": "123 Business St., Business City",
-  "number_of_employees": 50,
-  "sector": "Technology"
-}
-
-
-'''
-class CompanyRegistrationSerializer(serializers.Serializer):
-    user = UserRegistrationSerializer()
-    name = serializers.CharField()
-    phone = serializers.CharField()
-    # Add any other company specific fields here
-    email = serializers.EmailField()
-    address = serializers.CharField(allow_blank=True, allow_null=True)
-    number_of_employees = serializers.IntegerField()
-    sector = serializers.CharField(allow_blank=True, allow_null=True)
-    # Include logo if uploaded
-
-    def create(self, validated_data):
-        user_data = validated_data.pop('user')
-        user = UserRegistrationSerializer.create(UserRegistrationSerializer(), validated_data=user_data)
-        user.is_company = True
-        user.save()
-        company = Company.objects.create(user=user, **validated_data)
-        return company
-
-class AdvisorRegistrationSerializer(serializers.Serializer):
-    user = UserRegistrationSerializer()
-    name = serializers.CharField()
-    phone = serializers.CharField()
-    specialty = serializers.CharField()
-    sponsored = serializers.BooleanField(default=False)
-    email = serializers.EmailField()
-    # Include profile_picture if required
-
-    def create(self, validated_data):
-        user_data = validated_data.pop('user')
-        user = UserRegistrationSerializer.create(UserRegistrationSerializer(), validated_data=user_data)
-        user.is_advisor = True
-        user.save()
-        advisor = Advisor.objects.create(user=user, **validated_data)
-        return advisor
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        # Add custom claims
+
         token['is_advisor'] = user.is_advisor
         token['is_company'] = user.is_company
+
         return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        refresh = self.get_token(self.user)
+
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+
+        data['is_advisor'] = self.user.is_advisor
+        data['is_company'] = self.user.is_company
+
+        return data

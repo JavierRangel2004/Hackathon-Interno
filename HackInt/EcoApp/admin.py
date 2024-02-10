@@ -1,27 +1,32 @@
+# admin.py
 from django.contrib import admin
+from .models import User, Company, Advisor, Sector, Specialty, Certification, ForumPost
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Certification, Company, Advisor, ForumPost
 
-# Define a custom UserAdmin
+# Custom UserAdmin to include 'is_advisor' and 'is_company' flags
 class CustomUserAdmin(UserAdmin):
     model = User
-    # Add fieldsets if you want to add fields to the create user form in admin
-    add_fieldsets = UserAdmin.add_fieldsets + (
-        (None, {'fields': ('is_advisor', 'is_company',)}),
+    list_display = ('username', 'email', 'is_advisor', 'is_company', 'is_staff', 'is_active',)
+    list_filter = ('is_advisor', 'is_company', 'is_staff', 'is_active',)
+    fieldsets = (
+        (None, {'fields': ('username', 'email', 'password')}),
+        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_advisor', 'is_company', 'groups', 'user_permissions')}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
-    # Add list_display to customize the columns displayed in the user list page
-    list_display = ('username', 'email', 'is_staff', 'is_advisor', 'is_company')
-    # Add fieldsets to customize the user edit form
-    fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('is_advisor', 'is_company',)}),
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'password1', 'password2', 'is_staff', 'is_active', 'is_advisor', 'is_company')}
+         ),
     )
+    search_fields = ('username', 'email',)
+    ordering = ('username', 'email',)
 
-# Register the custom UserAdmin
+# Registering models on the admin site
 admin.site.register(User, CustomUserAdmin)
-
-# Register other models with default admin interface
-admin.site.register(Certification)
 admin.site.register(Company)
-# Replace Supplier with Advisor
 admin.site.register(Advisor)
+admin.site.register(Sector)
+admin.site.register(Specialty)
+admin.site.register(Certification)
 admin.site.register(ForumPost)
