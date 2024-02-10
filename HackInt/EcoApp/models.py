@@ -56,6 +56,14 @@ Certificaciones:
         Requisitos
         Beneficios
         imagen
+Foro:
+    Atributos
+        Título
+        Contenido
+        Empresa
+        Fecha de creación
+    
+        
 """
 
 from django.contrib.auth.models import AbstractUser
@@ -65,48 +73,38 @@ class User(AbstractUser):
     is_advisor = models.BooleanField(default=False)
     is_company = models.BooleanField(default=False)
 
-    # Add related_name to groups and user_permissions to avoid conflict
-    groups = models.ManyToManyField(
-        'auth.Group',
-        verbose_name='groups',
-        blank=True,
-        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-        related_name="%(app_label)s_%(class)s_related",
-        related_query_name="%(app_label)s_%(class)ss",
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        verbose_name='user permissions',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        related_name="%(app_label)s_%(class)s_related",
-        related_query_name="%(app_label)s_%(class)ss",
-    )
-
-# Certification information
 class Certification(models.Model):
     name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
     requirements = models.TextField()
-    application_process = models.TextField()
     benefits = models.TextField()
-
-# Company profile
+    image = models.ImageField(upload_to='certification_images/', blank=True, null=True)
 
 class Company(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='company')
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
     sustainability_score = models.IntegerField(default=0)
     improvements_needed = models.TextField()
     logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
+    ranking = models.IntegerField(default=0)
+    certifications = models.ManyToManyField(Certification, blank=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+    number_of_employees = models.IntegerField(default=0)
+    sector = models.CharField(max_length=255, blank=True, null=True) 
 
+class Advisor(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='advisor')
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    specialty = models.CharField(max_length=255)
+    sponsored = models.BooleanField(default=False)
+    profile_picture = models.ImageField(upload_to='advisor_profile_pictures/', blank=True, null=True)
 
-# Supplier network
-class Supplier(models.Model):
-    name = models.CharField(max_length=100)
-    sustainable_products = models.TextField()
-
-# Forum for sharing experiences
 class ForumPost(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='forum_posts')
     created_at = models.DateTimeField(auto_now_add=True)

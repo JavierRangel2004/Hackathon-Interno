@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Certification, Company, Supplier, ForumPost
+from .models import User, Certification, Company, Advisor, ForumPost
 
 # Define a custom UserAdmin
 class CustomUserAdmin(UserAdmin):
@@ -22,5 +22,6 @@ admin.site.register(User, CustomUserAdmin)
 # Register other models with default admin interface
 admin.site.register(Certification)
 admin.site.register(Company)
-admin.site.register(Supplier)
+# Replace Supplier with Advisor
+admin.site.register(Advisor)
 admin.site.register(ForumPost)

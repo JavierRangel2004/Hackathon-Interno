@@ -24,8 +24,10 @@ SECRET_KEY = 'django-insecure-ka&wlzw7egp@&9+f^h@o*wfdh@+b0*u)8x$ow)g=2l9y@@#(ml
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
+# add https://be53-2806-106e-24-23ba-7d4e-264b-882b-b71c.ngrok-free.app to ALLOWED_HOSTS
+ALLOWED_HOSTS = [
+    'be53-2806-106e-24-23ba-7d4e-264b-882b-b71c.ngrok-free.app',
+]
 
 
 # Application definition
@@ -40,6 +42,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
