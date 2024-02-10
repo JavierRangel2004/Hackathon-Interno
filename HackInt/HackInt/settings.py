@@ -26,10 +26,9 @@ SECRET_KEY = 'django-insecure-ka&wlzw7egp@&9+f^h@o*wfdh@+b0*u)8x$ow)g=2l9y@@#(ml
 DEBUG = True
 # add https://be53-2806-106e-24-23ba-7d4e-264b-882b-b71c.ngrok-free.app to ALLOWED_HOSTS
 ALLOWED_HOSTS = [
-    'be53-2806-106e-24-23ba-7d4e-264b-882b-b71c.ngrok-free.app',
     '127.0.0.1',
     'localhost',
-    'a05e-189-147-66-240.ngrok-free.app',
+    '5dc7-192-100-230-250.ngrok-free.app'
 ]
 
 

@@ -2,19 +2,20 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import Company, Advisor, Sector, Specialty, Certification, ForumPost
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 
 UserModel = get_user_model()
 
 class SectorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sector
-        fields = ['id', 'name']
+        fields= '__all__'
 
 class SpecialtySerializer(serializers.ModelSerializer):
     class Meta:
         model = Specialty
-        fields = ['id', 'name']
-
+        fields = '__all__'
 
 class AdvisorRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -82,9 +83,6 @@ class AdvisorSerializer(serializers.ModelSerializer):
         model = Advisor
         fields = '__all__'
 
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
-
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -107,3 +105,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['is_company'] = self.user.is_company
 
         return data
+
+#add certification registration serializer
+
+class CertificationRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certification
+        fields = ['name', 'description', 'requirements', 'benefits', 'image']
+        extra_kwargs = {'image': {'required': False}}
+
+    def create(self, validated_data):
+        certification = Certification.objects.create(**validated_data)
+        return certification
